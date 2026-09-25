@@ -25,14 +25,56 @@ public class ClienteCsv implements InterfaceCliente {
     }
 
     @Override
-    public void guardarCliente(Cliente cliente) {
-        String linea = cliente.getId() + ";" + cliente.getNombre() + ";" + cliente.getTelefono() + ";" + cliente.getMatricula();
+    public void guardarCliente(String nombre, String telefono, String matricula) {
+        // Comprobamos si la matrícula ya está registrada
+        if (existeMatricula(matricula)) {
+            System.out.println("La matrícula ya está registrada.");
+            return;
+        }
+
+        int nuevoId = 1;
+
         try {
+
+            // Si existe el archivo, buscamos el ID más alto
+            if (Files.exists(archivo)) {
+                List<String> lineas = Files.readAllLines(archivo, StandardCharsets.UTF_8);
+
+                for (String linea : lineas) {
+
+                    if (!linea.isBlank()) {
+
+                        String[] datos = linea.split(";");
+
+                        int id = Integer.parseInt(datos[0]);
+
+                        if (id >= nuevoId) {
+                            nuevoId = id + 1;
+                        }
+                    }
+                }
+            }
+
+            // Creamos el cliente con el nuevo ID y la matricula en mayusculas
+            matricula = matricula.toUpperCase();
+            Cliente cliente = new Cliente(nuevoId, nombre, telefono, matricula);
+
+            // Creamos la línea que se guardará en el CSV
+            String linea = cliente.getId() + ";" + cliente.getNombre() + ";" + cliente.getTelefono() + ";" + cliente.getMatricula();
+
+            // Guardamos el cliente
             Files.writeString(archivo, linea + System.lineSeparator(), StandardCharsets.UTF_8, StandardOpenOption.APPEND);
+
+            // Mostramos el resultado
+            System.out.println("Cliente guardado correctamente.");
+            System.out.println("El identificador del cliente es: " + nuevoId);
+
         } catch (IOException e) {
-            System.out.println("Error al guardar el cliente");
+
+            System.out.println("Error al guardar el cliente.");
         }
     }
+
 
     @Override
     public List<Cliente> obtenerTodos() {
@@ -63,8 +105,10 @@ public class ClienteCsv implements InterfaceCliente {
     }
 
     @Override
-    public List<Cliente> buscarPorNombre(String nombre) {
+    public List<Cliente> buscar(String busqueda) {
         List<Cliente> clientes = new ArrayList<>();
+
+        String minusculas = busqueda.toLowerCase();
 
         try {
             List<String> lineas = Files.readAllLines(archivo, StandardCharsets.UTF_8);
@@ -73,13 +117,23 @@ public class ClienteCsv implements InterfaceCliente {
                 if (!linea.isBlank()) {
                     String[] datos = linea.split(";");
                     int id = Integer.parseInt(datos[0]);
-                    String nombree = datos[1];
+                    String nombre = datos[1];
                     String telefono = datos[2];
                     String matricula = datos[3];
 
-                    Cliente cliente = new Cliente(id, nombree, telefono, matricula);
+                    Cliente cliente = new Cliente(id, nombre, telefono, matricula);
 
-                    if (cliente.getNombre().equalsIgnoreCase(nombre)) {
+
+                    if (cliente.getNombre()
+                            .toLowerCase()
+                            .contains(minusculas)
+                            || cliente.getTelefono()
+                            .toLowerCase()
+                            .contains(minusculas)
+                            || cliente.getMatricula()
+                            .toLowerCase()
+                            .contains(minusculas)) {
+
                         clientes.add(cliente);
                     }
                 }
@@ -87,7 +141,7 @@ public class ClienteCsv implements InterfaceCliente {
         } catch (IOException e) {
             System.out.println("Error al buscar cliente");
         }
-        return List.of();
+        return clientes;
     }
 
     @Override
@@ -102,4 +156,27 @@ public class ClienteCsv implements InterfaceCliente {
         return false;
     }
 
+    public Cliente buscarPorId(int idBuscado) {
+
+        try {
+            List<String> lineas = Files.readAllLines(archivo, StandardCharsets.UTF_8);
+
+            for (String linea : lineas) {
+                if (!linea.isBlank()) {
+                    String[] datos = linea.split(";");
+
+                    int id = Integer.parseInt(datos[0]);
+
+                    if (id == idBuscado) {
+                        String nombre = datos[1];String telefono = datos[2];String matricula = datos[3];
+
+                        return new Cliente(id, nombre, telefono, matricula);
+                    }
+                }
+            }
+        } catch (IOException e) {
+            System.out.println("Error al buscar cliente");
+        }
+        return null;
+    }
 }

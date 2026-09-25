@@ -32,7 +32,7 @@ public class PagoCsv implements InterfacePago {
 
     @Override
     public void guardarPago(Pago pago) {
-        String linea = pago.getId() + ";" + pago.getCliente() + ";" + pago.getFecha() + ";" + pago.getImporte() + ";" + pago.getLitros() + ";" + pago.getCombustible();
+        String linea = pago.getId() + ";" + pago.getCliente().getId() + ";" + pago.getFecha() + ";" + pago.getImporte() + ";" + pago.getLitros() + ";" + pago.getCombustible();
         try {
             Files.writeString(archivo, linea + System.lineSeparator(), StandardCharsets.UTF_8, StandardOpenOption.APPEND);
         } catch (IOException e) {
@@ -42,7 +42,7 @@ public class PagoCsv implements InterfacePago {
 
     @Override
     public List<Pago> obtenerTodos() {
-        List<Cliente> pagos = new ArrayList<>();
+        List<Pago> pagos = new ArrayList<>();
 
         try {
             List<String> lineas = Files.readAllLines(archivo, StandardCharsets.UTF_8);
@@ -51,13 +51,13 @@ public class PagoCsv implements InterfacePago {
                 if (!linea.isBlank()) {
                     String[] datos = linea.split(";");
                     int id = Integer.parseInt(datos[0]);
-                    String nombreCliente = datos[1];
+                    int idCliente = Integer.parseInt(datos[1]);
                     LocalDate fecha = LocalDate.parse(datos[2]);
                     BigDecimal importe = new BigDecimal(datos[3]);
                     BigDecimal litros = new BigDecimal(datos[4]);
                     String combustible = datos[5];
 
-                    Cliente cliente = clienteCsv.buscarPorNombre(nombreCliente);
+                    Cliente cliente = clienteCsv.buscarPorId(idCliente);
 
                     Pago pago = new Pago(id, cliente, fecha, importe, litros, combustible);
                     pagos.add(pago);
@@ -68,9 +68,7 @@ public class PagoCsv implements InterfacePago {
         } catch (IOException e) {
             System.out.println("Error al leer los clientes");
         }
-
         return pagos;
-
     }
 
 }
