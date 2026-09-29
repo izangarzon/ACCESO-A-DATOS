@@ -1,6 +1,8 @@
-import java.util.List;
+import java.util.*;
 
 public class Gasolinera {
+
+    private final Scanner scanner = new Scanner(System.in);
 
     private final ClienteCsv clienteCsv;
     private final PagoCsv pagoCsv;
@@ -15,6 +17,13 @@ public class Gasolinera {
 
     // Registrar un cliente
     public void registrarCliente(String nombre, String telefono, String matricula) {
+
+        while (!nombre.matches("[a-zA-ZáéíóúÁÉÍÓÚñÑ ]+")) {
+            System.out.println("El nombre solo puede contener letras.");
+            System.out.print("Introduce de nuevo el nombre: ");
+
+            nombre = scanner.nextLine().trim();
+        }
 
         clienteCsv.guardarCliente(nombre, telefono, matricula);
     }
@@ -35,9 +44,9 @@ public class Gasolinera {
 
 
     // Registrar un pago
-    public void registrarPago(Pago pago) {
+    public void registrarPago(int idCliente) {
 
-        pagoCsv.guardarPago(pago);
+        pagoCsv.guardarPago(idCliente);
     }
 
 
