@@ -1,4 +1,3 @@
-import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
 import java.util.*;
@@ -19,8 +18,8 @@ public class ClienteCsv implements InterfaceCliente {
             if (!Files.exists(archivo)) {
                 Files.createFile(archivo);
             }
-        } catch (IOException e) {
-            System.out.println("Error al crear el archivo.");
+        } catch (Exception e) {
+            System.out.println("Error al crear el archivo." + e.getMessage());
         }
     }
 
@@ -28,7 +27,7 @@ public class ClienteCsv implements InterfaceCliente {
     @Override
     public void guardarCliente(String nombre, String telefono, String matricula) {
 
-        // Comprobamos si la matrícula ya está registrada
+        // Comprobamos si la matrícula existe
         if (existeMatricula(matricula)) {
             System.out.println("La matrícula ya está registrada.");
             return;
@@ -38,7 +37,7 @@ public class ClienteCsv implements InterfaceCliente {
 
         try {
 
-            // Si existe el archivo, buscamos el ID más alto
+            // Generamos el nuevo id correspondiente
             if (Files.exists(archivo)) {
                 List<String> lineas = Files.readAllLines(archivo, StandardCharsets.UTF_8);
 
@@ -46,7 +45,7 @@ public class ClienteCsv implements InterfaceCliente {
 
                     if (!linea.isBlank()) {
 
-                        String[] datos = linea.split(";");
+                        String[] datos = linea.split(",");
 
                         int id = Integer.parseInt(datos[0]);
 
@@ -57,23 +56,21 @@ public class ClienteCsv implements InterfaceCliente {
                 }
             }
 
-            // Creamos el cliente con el nuevo ID y la matricula en mayusculas
+            // Creamos el nuevo cliente
             matricula = matricula.toUpperCase();
             Cliente cliente = new Cliente(nuevoId, nombre, telefono, matricula);
 
-            // Creamos la línea que se guardará en el CSV
-            String linea = cliente.getId() + ";" + cliente.getNombre() + ";" + cliente.getTelefono() + ";" + cliente.getMatricula();
+            // Guardamos en el CSV
+            String linea = cliente.getId() + "," + cliente.getNombre() + "," + cliente.getTelefono() + "," + cliente.getMatricula();
 
-            // Guardamos el cliente
             Files.writeString(archivo, linea + System.lineSeparator(), StandardCharsets.UTF_8, StandardOpenOption.APPEND);
 
             // Mostramos el resultado
             System.out.println("Cliente guardado correctamente.");
             System.out.println("El identificador del cliente es: " + nuevoId);
 
-        } catch (IOException e) {
-
-            System.out.println("Error al guardar el cliente.");
+        } catch (Exception e) {
+            System.out.println("Error al guardar el cliente." + e.getMessage());
         }
     }
 
@@ -82,12 +79,13 @@ public class ClienteCsv implements InterfaceCliente {
     public List<Cliente> obtenerTodos() {
         List<Cliente> clientes = new ArrayList<>();
 
+        // Leemos el archivo y mostramos de uno en uno todos los clientes listados
         try {
             List<String> lineas = Files.readAllLines(archivo, StandardCharsets.UTF_8);
 
             for (String linea : lineas) {
                 if (!linea.isBlank()) {
-                    String[] datos = linea.split(";");
+                    String[] datos = linea.split(",");
                     int id = Integer.parseInt(datos[0]);
                     String nombre = datos[1];
                     String telefono = datos[2];
@@ -99,9 +97,11 @@ public class ClienteCsv implements InterfaceCliente {
                 }
             }
 
-        } catch (IOException e) {
-            System.out.println("Error al leer los clientes");
+        } catch (Exception e) {
+            System.out.println("Error al leer los clientes" + e.getMessage());
         }
+
+        clientes.sort(Comparator.comparing(Cliente::getNombre, String.CASE_INSENSITIVE_ORDER).thenComparing(Cliente::getId));
 
         return clientes;
     }
@@ -112,12 +112,13 @@ public class ClienteCsv implements InterfaceCliente {
 
         String minusculas = busqueda.toLowerCase();
 
+        // Recorremos el array buscando coincidencias con la palabra buscada y si se encuentra se muestra ese cliente
         try {
             List<String> lineas = Files.readAllLines(archivo, StandardCharsets.UTF_8);
 
             for (String linea : lineas) {
                 if (!linea.isBlank()) {
-                    String[] datos = linea.split(";");
+                    String[] datos = linea.split(",");
                     int id = Integer.parseInt(datos[0]);
                     String nombre = datos[1];
                     String telefono = datos[2];
@@ -126,23 +127,20 @@ public class ClienteCsv implements InterfaceCliente {
                     Cliente cliente = new Cliente(id, nombre, telefono, matricula);
 
 
-                    if (cliente.getNombre()
-                            .toLowerCase()
-                            .contains(minusculas)
-                            || cliente.getTelefono()
-                            .toLowerCase()
-                            .contains(minusculas)
-                            || cliente.getMatricula()
-                            .toLowerCase()
-                            .contains(minusculas)) {
+                    if (cliente.getNombre().toLowerCase().contains(minusculas)
+                            || cliente.getTelefono().toLowerCase().contains(minusculas)
+                            || cliente.getMatricula().toLowerCase().contains(minusculas)) {
 
                         clientes.add(cliente);
                     }
                 }
             }
-        } catch (IOException e) {
-            System.out.println("Error al buscar cliente");
+        } catch (Exception e) {
+            System.out.println("Error al buscar cliente" + e.getMessage());
         }
+
+        clientes.sort(Comparator.comparing(Cliente::getNombre, String.CASE_INSENSITIVE_ORDER).thenComparing(Cliente::getId));
+
         return clientes;
     }
 
@@ -160,24 +158,28 @@ public class ClienteCsv implements InterfaceCliente {
 
     public Cliente buscarPorId(int idBuscado) {
 
+        // Busca
         try {
             List<String> lineas = Files.readAllLines(archivo, StandardCharsets.UTF_8);
 
             for (String linea : lineas) {
                 if (!linea.isBlank()) {
-                    String[] datos = linea.split(";");
+
+                    String[] datos = linea.split(",");
 
                     int id = Integer.parseInt(datos[0]);
 
                     if (id == idBuscado) {
-                        String nombre = datos[1];String telefono = datos[2];String matricula = datos[3];
+                        String nombre = datos[1];
+                        String telefono = datos[2];
+                        String matricula = datos[3];
 
                         return new Cliente(id, nombre, telefono, matricula);
                     }
                 }
             }
-        } catch (IOException e) {
-            System.out.println("Error al buscar cliente");
+        } catch (Exception e) {
+            System.out.println("Error al buscar cliente" + e.getMessage());
         }
         return null;
     }
