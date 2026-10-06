@@ -44,8 +44,8 @@ public class PagoJson implements InterfacePago {
 
             for (String linea : lineas) {
                 if (!linea.isBlank()) {
-                    String[] datos = linea.split(",");
-                    int id = Integer.parseInt(datos[0]);
+                    String[] datos = linea.split("\"");
+                    int id = Integer.parseInt(datos[3]);
 
                     if (id >= nuevoId) {
                         nuevoId = id + 1;
@@ -56,7 +56,7 @@ public class PagoJson implements InterfacePago {
             Pago pago = new Pago(nuevoId, cliente, fecha, importe, litros, combustible);
 
             //Guardamos el pago en el CSV
-            String linea = "{Id: " + pago.getId() + "," + "Idcliente: " + pago.getCliente().getId() + "," + "fecha: " + pago.getFecha() + "," + "importe: " + pago.getImporte() + "," + "Litros: " + pago.getLitros() + "," + "Combustible: " + pago.getCombustible()+"}";
+            String linea = "{\"Id\": \"" + pago.getId() + "\"," + "\"Idcliente\": \"" + pago.getCliente().getId() + "\"," + "\"fecha\": \"" + pago.getFecha() + "\"," + "\"importe\": \"" + pago.getImporte() + "\"," + "\"Litros\": \"" + pago.getLitros() + "\"," + "\"Combustible\": \"" + pago.getCombustible()+"\"}";
 
             Files.writeString(archivo, linea + System.lineSeparator(), StandardCharsets.UTF_8, StandardOpenOption.APPEND);
 
@@ -80,13 +80,13 @@ public class PagoJson implements InterfacePago {
 
             for (String linea : lineas) {
                 if (!linea.isBlank()) {
-                    String[] datos = linea.split(",");
-                    int id = Integer.parseInt(datos[0]);
-                    int idCliente = Integer.parseInt(datos[1]);
-                    LocalDate fecha = LocalDate.parse(datos[2]);
-                    BigDecimal importe = new BigDecimal(datos[3]);
-                    BigDecimal litros = new BigDecimal(datos[4]);
-                    String combustible = datos[5];
+                    String[] datos = linea.split("\"");
+                    int id = Integer.parseInt(datos[3]);
+                    int idCliente = Integer.parseInt(datos[7]);
+                    LocalDate fecha = LocalDate.parse(datos[11]);
+                    BigDecimal importe = new BigDecimal(datos[15]);
+                    BigDecimal litros = new BigDecimal(datos[19]);
+                    String combustible = datos[23];
 
                     Cliente cliente = clienteJson.buscarPorId(idCliente);
 
