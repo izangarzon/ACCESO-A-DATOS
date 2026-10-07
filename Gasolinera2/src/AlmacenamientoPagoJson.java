@@ -5,16 +5,16 @@ import java.time.LocalDate;
 import java.util.*;
 
 
-public class PagoCsv implements InterfacePago {
+public class AlmacenamientoPagoJson implements I_AlmacenamientoPago {
 
     private final Path archivo;
 
-    private final ClienteCsv clienteCsv;
+    private final I_AlmacenamientoCliente almacenamientoClienteJson;
 
     // Constructor
-    public PagoCsv(String nombreArchivo, ClienteCsv clienteCsv) {
+    public AlmacenamientoPagoJson(String nombreArchivo, I_AlmacenamientoCliente almacenamientoClienteJson) {
         archivo = Path.of(nombreArchivo);
-        this.clienteCsv = clienteCsv;
+        this.almacenamientoClienteJson = almacenamientoClienteJson;
         crearArchivo();
     }
 
@@ -34,7 +34,7 @@ public class PagoCsv implements InterfacePago {
     public void guardarPago(int idCliente, LocalDate fecha, BigDecimal importe, BigDecimal litros, String combustible) {
 
         //Buscamos el cliente
-        Cliente cliente = clienteCsv.buscarPorId(idCliente);
+        Cliente cliente = almacenamientoClienteJson.buscarPorId(idCliente);
 
         //Obtenemos el ID del pago.
         int nuevoId = 1;
@@ -44,8 +44,8 @@ public class PagoCsv implements InterfacePago {
 
             for (String linea : lineas) {
                 if (!linea.isBlank()) {
-                    String[] datos = linea.split(",");
-                    int id = Integer.parseInt(datos[0]);
+                    String[] datos = linea.split("\"");
+                    int id = Integer.parseInt(datos[3]);
 
                     if (id >= nuevoId) {
                         nuevoId = id + 1;
@@ -56,7 +56,7 @@ public class PagoCsv implements InterfacePago {
             Pago pago = new Pago(nuevoId, cliente, fecha, importe, litros, combustible);
 
             //Guardamos el pago en el CSV
-            String linea = pago.getId() + "," + pago.getCliente().getId() + "," + pago.getFecha() + "," + pago.getImporte() + "," + pago.getLitros() + "," + pago.getCombustible();
+            String linea = "{\"Id\": \"" + pago.getId() + "\"," + "\"Idcliente\": \"" + pago.getCliente().getId() + "\"," + "\"fecha\": \"" + pago.getFecha() + "\"," + "\"importe\": \"" + pago.getImporte() + "\"," + "\"Litros\": \"" + pago.getLitros() + "\"," + "\"Combustible\": \"" + pago.getCombustible()+"\"},";
 
             Files.writeString(archivo, linea + System.lineSeparator(), StandardCharsets.UTF_8, StandardOpenOption.APPEND);
 
@@ -80,15 +80,19 @@ public class PagoCsv implements InterfacePago {
 
             for (String linea : lineas) {
                 if (!linea.isBlank()) {
-                    String[] datos = linea.split(",");
-                    int id = Integer.parseInt(datos[0]);
-                    int idCliente = Integer.parseInt(datos[1]);
-                    LocalDate fecha = LocalDate.parse(datos[2]);
-                    BigDecimal importe = new BigDecimal(datos[3]);
-                    BigDecimal litros = new BigDecimal(datos[4]);
-                    String combustible = datos[5];
+                    String[] datos = linea.split("\"");
+                    int id = Integer.parseInt(datos[3]);
+                    int idCliente = Integer.parseInt(datos[7]);
+                    LocalDate fecha = LocalDate.parse(datos[11]);
+                    BigDecimal importe = new BigDecimal(datos[15]);
+                    BigDecimal litros = new BigDecimal(datos[19]);
+                    String combustible = datos[23];
 
-                    Cliente cliente = clienteCsv.buscarPorId(idCliente);
+                    Cliente cliente = almacenamientoClienteJson.buscarPorId(idCliente);
+                    if (cliente == null) {
+                        System.out.println("Error: el pago " + id + " hace referencia a un cliente que no existe: " + idCliente);
+                        continue;
+                    }
 
                     Pago pago = new Pago(id, cliente, fecha, importe, litros, combustible);
                     pagos.add(pago);

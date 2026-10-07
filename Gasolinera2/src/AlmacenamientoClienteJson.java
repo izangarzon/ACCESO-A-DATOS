@@ -2,12 +2,12 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
 import java.util.*;
 
-public class ClienteCsv implements InterfaceCliente {
+public class AlmacenamientoClienteJson implements I_AlmacenamientoCliente {
 
     private final Path archivo;
 
     //Constructor
-    public ClienteCsv(String nombreArchivo) {
+    public AlmacenamientoClienteJson(String nombreArchivo) {
         archivo = Path.of(nombreArchivo);
         crearArchivo();
     }
@@ -45,9 +45,9 @@ public class ClienteCsv implements InterfaceCliente {
 
                     if (!linea.isBlank()) {
 
-                        String[] datos = linea.split(",");
+                        String[] datos = linea.split("\"");
 
-                        int id = Integer.parseInt(datos[0]);
+                        int id = Integer.parseInt(datos[3].trim());
 
                         if (id >= nuevoId) {
                             nuevoId = id + 1;
@@ -61,7 +61,7 @@ public class ClienteCsv implements InterfaceCliente {
             Cliente cliente = new Cliente(nuevoId, nombre, telefono, matricula);
 
             // Guardamos en el CSV
-            String linea = cliente.getId() + "," + cliente.getNombre() + "," + cliente.getTelefono() + "," + cliente.getMatricula();
+            String linea = "{\"Id\": \"" + cliente.getId() + "\"," + "\"nombre\": \"" + cliente.getNombre() + "\"," + "\"telefono\": \"" + cliente.getTelefono() + "\"," + "\"matricula\": \"" + cliente.getMatricula()+"\"},";
 
             Files.writeString(archivo, linea + System.lineSeparator(), StandardCharsets.UTF_8, StandardOpenOption.APPEND);
 
@@ -85,11 +85,12 @@ public class ClienteCsv implements InterfaceCliente {
 
             for (String linea : lineas) {
                 if (!linea.isBlank()) {
-                    String[] datos = linea.split(",");
-                    int id = Integer.parseInt(datos[0]);
-                    String nombre = datos[1];
-                    String telefono = datos[2];
-                    String matricula = datos[3];
+                    String[] datos = linea.split("\"");
+
+                    int id = Integer.parseInt(datos[3].trim());
+                    String nombre = datos[7].trim();
+                    String telefono = datos[11].trim();
+                    String matricula = datos[15].trim();
 
                     Cliente cliente = new Cliente(id, nombre, telefono, matricula);
                     clientes.add(cliente);
@@ -118,14 +119,14 @@ public class ClienteCsv implements InterfaceCliente {
 
             for (String linea : lineas) {
                 if (!linea.isBlank()) {
-                    String[] datos = linea.split(",");
-                    int id = Integer.parseInt(datos[0]);
-                    String nombre = datos[1];
-                    String telefono = datos[2];
-                    String matricula = datos[3];
+                    String[] datos = linea.split("\"");
+
+                    int id = Integer.parseInt(datos[3].trim());
+                    String nombre = datos[7].trim();
+                    String telefono = datos[11].trim();
+                    String matricula = datos[15].trim();
 
                     Cliente cliente = new Cliente(id, nombre, telefono, matricula);
-
 
                     if (cliente.getNombre().toLowerCase().contains(minusculas)
                             || cliente.getTelefono().toLowerCase().contains(minusculas)
@@ -156,6 +157,7 @@ public class ClienteCsv implements InterfaceCliente {
         return false;
     }
 
+    @Override
     public Cliente buscarPorId(int idBuscado) {
 
         // Busca
@@ -165,14 +167,14 @@ public class ClienteCsv implements InterfaceCliente {
             for (String linea : lineas) {
                 if (!linea.isBlank()) {
 
-                    String[] datos = linea.split(",");
+                    String[] datos = linea.split("\"");
 
-                    int id = Integer.parseInt(datos[0]);
+                    int id = Integer.parseInt(datos[3].trim());
 
                     if (id == idBuscado) {
-                        String nombre = datos[1];
-                        String telefono = datos[2];
-                        String matricula = datos[3];
+                        String nombre = datos[7].trim();
+                        String telefono = datos[11].trim();
+                        String matricula = datos[15].trim();
 
                         return new Cliente(id, nombre, telefono, matricula);
                     }

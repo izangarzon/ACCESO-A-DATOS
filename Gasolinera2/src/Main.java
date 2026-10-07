@@ -8,14 +8,14 @@ public class Main {
 
         Scanner sc = new Scanner(System.in);
 
-        ClienteJson clienteJson = new ClienteJson("clientes.json");
-        PagoJson pagoJson = new PagoJson("pagos.json", clienteJson);
+        I_AlmacenamientoCliente almacenamientoCliente = new AlmacenamientoClienteJson("clientes.json");
 
-        Gasolinera gasolinera = new Gasolinera(clienteJson, pagoJson);
+        I_AlmacenamientoPago almacenamientoPago = new AlmacenamientoPagoJson("pagos.json", almacenamientoCliente);
+        Gasolinera gasolinera = new Gasolinera(almacenamientoCliente, almacenamientoPago, sc);
 
+        boolean primeraVez= true;
         int opcion = -1;
 
-        // Mostramos el menu y configuramos sus opciones
         while (opcion != 0) {
 
             System.out.println("\n===== GASOLINERA =====");
@@ -24,6 +24,9 @@ public class Main {
             System.out.println("3. Buscar clientes");
             System.out.println("4. Procesar pago");
             System.out.println("5. Consultar pagos");
+            if (primeraVez) {
+                System.out.println("6. Convertir CSV a JSON");
+            }
             System.out.println("0. Salir");
 
             System.out.print("\nElige una opción: ");
@@ -34,6 +37,7 @@ public class Main {
                 System.out.println("Introduce un número válido.");
                 continue;
             }
+
 
             switch (opcion) {
 
@@ -83,6 +87,13 @@ public class Main {
                         System.out.println(pago.getId() + ", " + pago.getCliente().getNombre() + ", " + pago.getFecha() + ", " + String.format(Locale.US, "%.2f", pago.getImporte()) + "€, " + String.format(Locale.US, "%.2f", pago.getLitros()) + ", " + pago.getCombustible());
                     }
                     break;
+                case 6:
+                    if (primeraVez) {
+                        MigraCSVToJson.convertir();
+                    } else {
+                        System.out.println("Opción no válida.");
+                    }
+                    break;
 
                 case 0:
                     System.out.println("Hasta pronto.");
@@ -91,6 +102,9 @@ public class Main {
                 default:
                     System.out.println("Opción no válida.");
             }
+
+            primeraVez= false;
+
         }
     }
 }

@@ -6,18 +6,18 @@ import java.time.format.DateTimeFormatter;
 
 public class Gasolinera {
 
-    private final Scanner scanner = new Scanner(System.in);
 
-    private final ClienteJson clienteJson;
-    private final PagoJson pagoJson;
+    private final I_AlmacenamientoCliente almacenamientoCliente;
+    private final I_AlmacenamientoPago almacenamientoPago;
+    private final Scanner scanner;
 
 
     // Constructor
-    public Gasolinera(ClienteJson clienteJson, PagoJson pagoJson) {
-        this.clienteJson = clienteJson;
-        this.pagoJson = pagoJson;
+    public Gasolinera(I_AlmacenamientoCliente almacenamientoCliente, I_AlmacenamientoPago almacenamientoPago, Scanner scanner) {
+        this.almacenamientoCliente = almacenamientoCliente;
+        this.almacenamientoPago = almacenamientoPago;
+        this.scanner = scanner;
     }
-
 
     // Registrar un cliente
     public void registrarCliente() {
@@ -49,28 +49,28 @@ public class Gasolinera {
             matricula = scanner.nextLine().trim();
         }
 
-        clienteJson.guardarCliente(nombre, telefono, matricula);
+        almacenamientoCliente.guardarCliente(nombre, telefono, matricula);
     }
 
 
     // Buscar clientes por nombre
     public List<Cliente> buscarClientes(String nombre) {
 
-        return clienteJson.buscar(nombre);
+        return almacenamientoCliente.buscar(nombre);
     }
 
 
     // Listar todos los clientes
     public List<Cliente> listarClientes() {
 
-        return clienteJson.obtenerTodos();
+        return almacenamientoCliente.obtenerTodos();
     }
 
 
     // Registrar un pago
     public void registrarPago(int idCliente) {
 
-        Cliente cliente = clienteJson.buscarPorId(idCliente);
+        Cliente cliente = almacenamientoCliente.buscarPorId(idCliente);
 
         if (cliente == null) {
             System.out.println("El identificador no corresponde a ningún cliente.");
@@ -167,13 +167,13 @@ public class Gasolinera {
         }
 
 
-        pagoJson.guardarPago(idCliente, fecha, importe, litros, combustible);
+        almacenamientoPago.guardarPago(idCliente, fecha, importe, litros, combustible);
     }
 
 
     // Listar todos los pagos
     public List<Pago> listarPagos() {
 
-        return pagoJson.obtenerTodos();
+        return almacenamientoPago.obtenerTodos();
     }
 }
