@@ -14,6 +14,7 @@ public class MigraCSVToJson {
         Path pagosJson = Path.of("pagos.json");
 
         try {
+            //CLIENTES
             if (Files.exists(clientesCsv) && Files.size(clientesJson) > 0) {
                 System.out.println("Error: el archivo JSON ya contiene datos.");
                 System.out.println("No se han trasladado los datos.");
@@ -34,6 +35,8 @@ public class MigraCSVToJson {
                     Files.writeString(clientesJson, cliente + System.lineSeparator(), StandardCharsets.UTF_8, StandardOpenOption.APPEND);
                 }
             }
+
+            //PAGOS
             if (Files.exists(pagosCsv) && Files.size(pagosJson) > 0) {
                 System.out.println("Error: el archivo JSON ya contiene datos.");
                 System.out.println("No se han trasladado los datos.");
