@@ -5,6 +5,9 @@ public interface I_AlmacenamientoCliente {
     //Guarda un nuevo cliente
     void guardarCliente(String nombre, String telefono, String matricula);
 
+    //Guerda un cliente
+    void guardarCliente(Cliente c);
+
     //Devuelve todos los clientes
     List<Cliente> obtenerTodos();
 

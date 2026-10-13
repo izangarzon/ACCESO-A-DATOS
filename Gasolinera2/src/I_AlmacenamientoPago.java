@@ -7,6 +7,9 @@ public interface I_AlmacenamientoPago {
     //Guarda un nuevo pago
     void guardarPago(int idCliente, LocalDate fecha, BigDecimal importe, BigDecimal litros, String combustible);
 
+    //Guarda el pago
+    void guardarPago(Pago p);
+
     //Devuelve todos los pagos
     List<Pago> obtenerTodos();
 }

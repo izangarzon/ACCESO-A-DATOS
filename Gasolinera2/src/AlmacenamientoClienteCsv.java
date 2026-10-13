@@ -74,6 +74,11 @@ public class AlmacenamientoClienteCsv implements I_AlmacenamientoCliente {
         }
     }
 
+    @Override
+    public void guardarCliente(Cliente c) {
+        this.guardarCliente(c.getNombre(), c.getTelefono(), c.getMatricula());
+    }
+
 
     @Override
     public List<Cliente> obtenerTodos() {
@@ -101,7 +106,13 @@ public class AlmacenamientoClienteCsv implements I_AlmacenamientoCliente {
             System.out.println("Error al leer los clientes" + e.getMessage());
         }
 
-        clientes.sort(Comparator.comparing(Cliente::getNombre, String.CASE_INSENSITIVE_ORDER).thenComparing(Cliente::getId));
+        clientes.sort((o1, o2) -> {
+            if (o1.getNombre().compareToIgnoreCase(o2.getNombre()) == 0) {
+                return Integer.compare(o1.getId(), o2.getId());
+            }
+
+            return o1.getNombre().compareToIgnoreCase(o2.getNombre());
+        });
 
         return clientes;
     }
@@ -139,7 +150,13 @@ public class AlmacenamientoClienteCsv implements I_AlmacenamientoCliente {
             System.out.println("Error al buscar cliente" + e.getMessage());
         }
 
-        clientes.sort(Comparator.comparing(Cliente::getNombre, String.CASE_INSENSITIVE_ORDER).thenComparing(Cliente::getId));
+        clientes.sort((o1, o2) -> {
+            if (o1.getNombre().compareToIgnoreCase(o2.getNombre()) == 0) {
+                return Integer.compare(o1.getId(), o2.getId());
+            }
+
+            return o1.getNombre().compareToIgnoreCase(o2.getNombre());
+        });
 
         return clientes;
     }

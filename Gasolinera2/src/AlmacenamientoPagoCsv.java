@@ -70,6 +70,11 @@ public class AlmacenamientoPagoCsv implements I_AlmacenamientoPago {
         }
     }
 
+    @Override
+    public void guardarPago(Pago p) {
+        this.guardarPago(p.getId(),p.getFecha(),p.getImporte(),p.getLitros(),p.getCombustible());
+    }
+
 
     @Override
     public List<Pago> obtenerTodos() {
@@ -104,8 +109,12 @@ public class AlmacenamientoPagoCsv implements I_AlmacenamientoPago {
             System.out.println("Error al leer los pagos" + e.getMessage());
         }
 
-        pagos.sort(Comparator.comparing(Pago::getFecha).reversed().thenComparing(Comparator.comparing(Pago::getId).reversed()));
-
+        pagos.sort((o1, o2) -> {
+            if (o2.getFecha().isEqual(o1.getFecha())) {
+                return Integer.compare(o2.getId(), o1.getId());
+            }
+            return o2.getFecha().compareTo(o1.getFecha());
+        });
         return pagos;
     }
 

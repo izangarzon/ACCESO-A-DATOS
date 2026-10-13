@@ -56,7 +56,7 @@ public class AlmacenamientoPagoJson implements I_AlmacenamientoPago {
             Pago pago = new Pago(nuevoId, cliente, fecha, importe, litros, combustible);
 
             //Guardamos el pago en el CSV
-            String linea = "{\"Id\": \"" + pago.getId() + "\"," + "\"Idcliente\": \"" + pago.getCliente().getId() + "\"," + "\"fecha\": \"" + pago.getFecha() + "\"," + "\"importe\": \"" + pago.getImporte() + "\"," + "\"Litros\": \"" + pago.getLitros() + "\"," + "\"Combustible\": \"" + pago.getCombustible()+"\"},";
+            String linea = "{\"Id\": \"" + pago.getId() + "\"," + "\"Idcliente\": \"" + pago.getCliente().getId() + "\"," + "\"fecha\": \"" + pago.getFecha() + "\"," + "\"importe\": \"" + pago.getImporte() + "\"," + "\"Litros\": \"" + pago.getLitros() + "\"," + "\"Combustible\": \"" + pago.getCombustible() + "\"},";
 
             Files.writeString(archivo, linea + System.lineSeparator(), StandardCharsets.UTF_8, StandardOpenOption.APPEND);
 
@@ -68,6 +68,11 @@ public class AlmacenamientoPagoJson implements I_AlmacenamientoPago {
         } catch (Exception e) {
             System.out.println("Error al obtener el ID del pago." + e.getMessage());
         }
+    }
+
+    @Override
+    public void guardarPago(Pago p) {
+        this.guardarPago(p.getId(), p.getFecha(), p.getImporte(), p.getLitros(), p.getCombustible());
     }
 
 
@@ -104,7 +109,12 @@ public class AlmacenamientoPagoJson implements I_AlmacenamientoPago {
             System.out.println("Error al leer los pagos" + e.getMessage());
         }
 
-        pagos.sort(Comparator.comparing(Pago::getFecha).reversed().thenComparing(Comparator.comparing(Pago::getId).reversed()));
+        pagos.sort((o1, o2) -> {
+            if (o2.getFecha().isEqual(o1.getFecha())) {
+                return Integer.compare(o2.getId(), o1.getId());
+            }
+            return o2.getFecha().compareTo(o1.getFecha());
+        });
 
         return pagos;
     }
