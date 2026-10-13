@@ -1,3 +1,4 @@
+import java.io.BufferedReader;
 import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
@@ -39,10 +40,9 @@ public class AlmacenamientoPagoCsv implements I_AlmacenamientoPago {
         //Obtenemos el ID del pago.
         int nuevoId = 1;
 
-        try {
-            List<String> lineas = Files.readAllLines(archivo, StandardCharsets.UTF_8);
-
-            for (String linea : lineas) {
+        try (BufferedReader lector = Files.newBufferedReader(archivo, StandardCharsets.UTF_8)) {
+            String linea;
+            while ((linea = lector.readLine()) != null) {
                 if (!linea.isBlank()) {
                     String[] datos = linea.split(",");
                     int id = Integer.parseInt(datos[0]);
@@ -56,9 +56,9 @@ public class AlmacenamientoPagoCsv implements I_AlmacenamientoPago {
             Pago pago = new Pago(nuevoId, cliente, fecha, importe, litros, combustible);
 
             //Guardamos el pago en el CSV
-            String linea = pago.getId() + "," + pago.getCliente().getId() + "," + pago.getFecha() + "," + pago.getImporte() + "," + pago.getLitros() + "," + pago.getCombustible();
+            String linea1 = pago.getId() + "," + pago.getCliente().getId() + "," + pago.getFecha() + "," + pago.getImporte() + "," + pago.getLitros() + "," + pago.getCombustible();
 
-            Files.writeString(archivo, linea + System.lineSeparator(), StandardCharsets.UTF_8, StandardOpenOption.APPEND);
+            Files.writeString(archivo, linea1 + System.lineSeparator(), StandardCharsets.UTF_8, StandardOpenOption.APPEND);
 
             System.out.println();
             System.out.println("Pago registrado correctamente.");
@@ -72,7 +72,7 @@ public class AlmacenamientoPagoCsv implements I_AlmacenamientoPago {
 
     @Override
     public void guardarPago(Pago p) {
-        this.guardarPago(p.getId(),p.getFecha(),p.getImporte(),p.getLitros(),p.getCombustible());
+        this.guardarPago(p.getId(), p.getFecha(), p.getImporte(), p.getLitros(), p.getCombustible());
     }
 
 
@@ -80,10 +80,9 @@ public class AlmacenamientoPagoCsv implements I_AlmacenamientoPago {
     public List<Pago> obtenerTodos() {
         List<Pago> pagos = new ArrayList<>();
 
-        try {
-            List<String> lineas = Files.readAllLines(archivo, StandardCharsets.UTF_8);
-
-            for (String linea : lineas) {
+        try (BufferedReader lector = Files.newBufferedReader(archivo, StandardCharsets.UTF_8)) {
+            String linea;
+            while ((linea = lector.readLine()) != null) {
                 if (!linea.isBlank()) {
                     String[] datos = linea.split(",");
                     int id = Integer.parseInt(datos[0]);

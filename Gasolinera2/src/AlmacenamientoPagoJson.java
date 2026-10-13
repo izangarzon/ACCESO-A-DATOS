@@ -1,3 +1,4 @@
+import java.io.BufferedReader;
 import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
@@ -39,10 +40,9 @@ public class AlmacenamientoPagoJson implements I_AlmacenamientoPago {
         //Obtenemos el ID del pago.
         int nuevoId = 1;
 
-        try {
-            List<String> lineas = Files.readAllLines(archivo, StandardCharsets.UTF_8);
-
-            for (String linea : lineas) {
+        try (BufferedReader lector = Files.newBufferedReader(archivo, StandardCharsets.UTF_8)) {
+            String linea;
+            while ((linea = lector.readLine()) != null) {
                 if (!linea.isBlank()) {
                     String[] datos = linea.split("\"");
                     int id = Integer.parseInt(datos[3]);
@@ -53,12 +53,13 @@ public class AlmacenamientoPagoJson implements I_AlmacenamientoPago {
                 }
             }
 
+
             Pago pago = new Pago(nuevoId, cliente, fecha, importe, litros, combustible);
 
             //Guardamos el pago en el CSV
-            String linea = "{\"Id\": \"" + pago.getId() + "\"," + "\"Idcliente\": \"" + pago.getCliente().getId() + "\"," + "\"fecha\": \"" + pago.getFecha() + "\"," + "\"importe\": \"" + pago.getImporte() + "\"," + "\"Litros\": \"" + pago.getLitros() + "\"," + "\"Combustible\": \"" + pago.getCombustible() + "\"},";
+            String linea1 = "{\"Id\": \"" + pago.getId() + "\"," + "\"Idcliente\": \"" + pago.getCliente().getId() + "\"," + "\"fecha\": \"" + pago.getFecha() + "\"," + "\"importe\": \"" + pago.getImporte() + "\"," + "\"Litros\": \"" + pago.getLitros() + "\"," + "\"Combustible\": \"" + pago.getCombustible() + "\"},";
 
-            Files.writeString(archivo, linea + System.lineSeparator(), StandardCharsets.UTF_8, StandardOpenOption.APPEND);
+            Files.writeString(archivo, linea1 + System.lineSeparator(), StandardCharsets.UTF_8, StandardOpenOption.APPEND);
 
             System.out.println();
             System.out.println("Pago registrado correctamente.");
@@ -80,10 +81,9 @@ public class AlmacenamientoPagoJson implements I_AlmacenamientoPago {
     public List<Pago> obtenerTodos() {
         List<Pago> pagos = new ArrayList<>();
 
-        try {
-            List<String> lineas = Files.readAllLines(archivo, StandardCharsets.UTF_8);
-
-            for (String linea : lineas) {
+        try (BufferedReader lector = Files.newBufferedReader(archivo, StandardCharsets.UTF_8)) {
+            String linea;
+            while ((linea = lector.readLine())!=null) {
                 if (!linea.isBlank()) {
                     String[] datos = linea.split("\"");
                     int id = Integer.parseInt(datos[3]);

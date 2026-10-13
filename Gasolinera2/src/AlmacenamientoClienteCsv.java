@@ -1,3 +1,4 @@
+import java.io.BufferedReader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
 import java.util.*;
@@ -39,9 +40,9 @@ public class AlmacenamientoClienteCsv implements I_AlmacenamientoCliente {
 
             // Generamos el nuevo id correspondiente
             if (Files.exists(archivo)) {
-                List<String> lineas = Files.readAllLines(archivo, StandardCharsets.UTF_8);
-
-                for (String linea : lineas) {
+                BufferedReader lector = Files.newBufferedReader(archivo, StandardCharsets.UTF_8);
+                String linea;
+                while ((linea = lector.readLine()) != null) {
 
                     if (!linea.isBlank()) {
 
@@ -61,9 +62,9 @@ public class AlmacenamientoClienteCsv implements I_AlmacenamientoCliente {
             Cliente cliente = new Cliente(nuevoId, nombre, telefono, matricula);
 
             // Guardamos en el CSV
-            String linea = cliente.getId() + "," + cliente.getNombre() + "," + cliente.getTelefono() + "," + cliente.getMatricula();
+            String linea1 = cliente.getId() + "," + cliente.getNombre() + "," + cliente.getTelefono() + "," + cliente.getMatricula();
 
-            Files.writeString(archivo, linea + System.lineSeparator(), StandardCharsets.UTF_8, StandardOpenOption.APPEND);
+            Files.writeString(archivo, linea1 + System.lineSeparator(), StandardCharsets.UTF_8, StandardOpenOption.APPEND);
 
             // Mostramos el resultado
             System.out.println("Cliente guardado correctamente.");
@@ -85,10 +86,9 @@ public class AlmacenamientoClienteCsv implements I_AlmacenamientoCliente {
         List<Cliente> clientes = new ArrayList<>();
 
         // Leemos el archivo y mostramos de uno en uno todos los clientes listados
-        try {
-            List<String> lineas = Files.readAllLines(archivo, StandardCharsets.UTF_8);
-
-            for (String linea : lineas) {
+        try (BufferedReader lector = Files.newBufferedReader(archivo, StandardCharsets.UTF_8)) {
+            String linea;
+            while ((linea = lector.readLine()) != null) {
                 if (!linea.isBlank()) {
                     String[] datos = linea.split(",");
                     int id = Integer.parseInt(datos[0]);
@@ -124,10 +124,9 @@ public class AlmacenamientoClienteCsv implements I_AlmacenamientoCliente {
         String minusculas = busqueda.toLowerCase();
 
         // Recorremos el array buscando coincidencias con la palabra buscada y si se encuentra se muestra ese cliente
-        try {
-            List<String> lineas = Files.readAllLines(archivo, StandardCharsets.UTF_8);
-
-            for (String linea : lineas) {
+        try (BufferedReader lector = Files.newBufferedReader(archivo, StandardCharsets.UTF_8)) {
+            String linea;
+            while ((linea = lector.readLine()) != null) {
                 if (!linea.isBlank()) {
                     String[] datos = linea.split(",");
                     int id = Integer.parseInt(datos[0]);
@@ -177,10 +176,9 @@ public class AlmacenamientoClienteCsv implements I_AlmacenamientoCliente {
     public Cliente buscarPorId(int idBuscado) {
 
         // Busca
-        try {
-            List<String> lineas = Files.readAllLines(archivo, StandardCharsets.UTF_8);
-
-            for (String linea : lineas) {
+        try (BufferedReader lector = Files.newBufferedReader(archivo, StandardCharsets.UTF_8)) {
+            String linea;
+            while ((linea = lector.readLine()) != null) {
                 if (!linea.isBlank()) {
 
                     String[] datos = linea.split(",");

@@ -1,3 +1,4 @@
+import java.io.BufferedReader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
 import java.util.*;
@@ -36,13 +37,11 @@ public class AlmacenamientoClienteJson implements I_AlmacenamientoCliente {
         int nuevoId = 1;
 
         try {
-
             // Generamos el nuevo id correspondiente
             if (Files.exists(archivo)) {
-                List<String> lineas = Files.readAllLines(archivo, StandardCharsets.UTF_8);
-
-                for (String linea : lineas) {
-
+                BufferedReader lector = Files.newBufferedReader(archivo, StandardCharsets.UTF_8);
+                String linea;
+                while ((linea = lector.readLine()) != null) {
                     if (!linea.isBlank()) {
 
                         String[] datos = linea.split("\"");
@@ -61,9 +60,9 @@ public class AlmacenamientoClienteJson implements I_AlmacenamientoCliente {
             Cliente cliente = new Cliente(nuevoId, nombre, telefono, matricula);
 
             // Guardamos en el CSV
-            String linea = "{\"Id\": \"" + cliente.getId() + "\"," + "\"nombre\": \"" + cliente.getNombre() + "\"," + "\"telefono\": \"" + cliente.getTelefono() + "\"," + "\"matricula\": \"" + cliente.getMatricula()+"\"},";
+            String linea1 = "{\"Id\": \"" + cliente.getId() + "\"," + "\"nombre\": \"" + cliente.getNombre() + "\"," + "\"telefono\": \"" + cliente.getTelefono() + "\"," + "\"matricula\": \"" + cliente.getMatricula() + "\"},";
 
-            Files.writeString(archivo, linea + System.lineSeparator(), StandardCharsets.UTF_8, StandardOpenOption.APPEND);
+            Files.writeString(archivo, linea1 + System.lineSeparator(), StandardCharsets.UTF_8, StandardOpenOption.APPEND);
 
             // Mostramos el resultado
             System.out.println("Cliente guardado correctamente.");
@@ -76,7 +75,7 @@ public class AlmacenamientoClienteJson implements I_AlmacenamientoCliente {
 
     @Override
     public void guardarCliente(Cliente c) {
-        this.guardarCliente(c.getNombre(),c.getMatricula(),c.getTelefono());
+        this.guardarCliente(c.getNombre(), c.getMatricula(), c.getTelefono());
 
     }
 
@@ -86,10 +85,9 @@ public class AlmacenamientoClienteJson implements I_AlmacenamientoCliente {
         List<Cliente> clientes = new ArrayList<>();
 
         // Leemos el archivo y mostramos de uno en uno todos los clientes listados
-        try {
-            List<String> lineas = Files.readAllLines(archivo, StandardCharsets.UTF_8);
-
-            for (String linea : lineas) {
+        try (BufferedReader lector = Files.newBufferedReader(archivo, StandardCharsets.UTF_8)) {
+            String linea;
+            while ((linea = lector.readLine()) != null) {
                 if (!linea.isBlank()) {
                     String[] datos = linea.split("\"");
 
@@ -126,10 +124,9 @@ public class AlmacenamientoClienteJson implements I_AlmacenamientoCliente {
         String minusculas = busqueda.toLowerCase();
 
         // Recorremos el array buscando coincidencias con la palabra buscada y si se encuentra se muestra ese cliente
-        try {
-            List<String> lineas = Files.readAllLines(archivo, StandardCharsets.UTF_8);
-
-            for (String linea : lineas) {
+        try (BufferedReader lector = Files.newBufferedReader(archivo, StandardCharsets.UTF_8)) {
+            String linea;
+            while ((linea = lector.readLine()) != null) {
                 if (!linea.isBlank()) {
                     String[] datos = linea.split("\"");
 
@@ -179,10 +176,9 @@ public class AlmacenamientoClienteJson implements I_AlmacenamientoCliente {
     public Cliente buscarPorId(int idBuscado) {
 
         // Busca
-        try {
-            List<String> lineas = Files.readAllLines(archivo, StandardCharsets.UTF_8);
-
-            for (String linea : lineas) {
+        try (BufferedReader lector = Files.newBufferedReader(archivo, StandardCharsets.UTF_8)) {
+            String linea;
+            while ((linea = lector.readLine()) != null) {
                 if (!linea.isBlank()) {
 
                     String[] datos = linea.split("\"");
