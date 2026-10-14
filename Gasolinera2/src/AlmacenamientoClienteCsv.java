@@ -36,11 +36,10 @@ public class AlmacenamientoClienteCsv implements I_AlmacenamientoCliente {
 
         int nuevoId = 1;
 
-        try {
+        try (BufferedReader lector = Files.newBufferedReader(archivo, StandardCharsets.UTF_8)) {
 
             // Generamos el nuevo id correspondiente
             if (Files.exists(archivo)) {
-                BufferedReader lector = Files.newBufferedReader(archivo, StandardCharsets.UTF_8);
                 String linea;
                 while ((linea = lector.readLine()) != null) {
 

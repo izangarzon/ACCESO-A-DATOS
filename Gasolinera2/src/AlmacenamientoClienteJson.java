@@ -36,46 +36,51 @@ public class AlmacenamientoClienteJson implements I_AlmacenamientoCliente {
 
         int nuevoId = 1;
 
+        for (Cliente cliente : obtenerTodos()) {
+            if (cliente.getId() >= nuevoId) {
+                nuevoId = cliente.getId() + 1;
+            }
+        }
+
+        Cliente cliente = new Cliente(nuevoId, nombre, telefono, matricula.toUpperCase());
+
+        String linea = "{\"Id\": \"" + cliente.getId() + "\"," + "\"nombre\": \"" + cliente.getNombre() + "\"," + "\"telefono\": \"" + cliente.getTelefono() + "\"," + "\"matricula\": \"" + cliente.getMatricula() + "\"}";
+
         try {
-            // Generamos el nuevo id correspondiente
-            if (Files.exists(archivo)) {
-                BufferedReader lector = Files.newBufferedReader(archivo, StandardCharsets.UTF_8);
-                String linea;
-                while ((linea = lector.readLine()) != null) {
-                    if (!linea.isBlank()) {
+            String contenido = Files.readString(archivo, StandardCharsets.UTF_8).trim();
 
-                        String[] datos = linea.split("\"");
+            if (contenido.isEmpty() || contenido.equals("[]")) {
+                contenido = "{" + System.lineSeparator() + "  \"clientes\": [" + System.lineSeparator() + linea + System.lineSeparator() + "  ]" + System.lineSeparator() + "}";
+            } else {
+                int posicion = contenido.lastIndexOf("]");
 
-                        int id = Integer.parseInt(datos[3].trim());
-
-                        if (id >= nuevoId) {
-                            nuevoId = id + 1;
-                        }
-                    }
+                if (posicion == -1) {
+                    System.out.println("El archivo JSON no tiene un formato válido.");
+                    return;
                 }
+
+                String clientes = contenido.substring(0, posicion).trim();
+
+                if (!clientes.endsWith("[")) {
+                    clientes += ",";
+                }
+
+                contenido = clientes + System.lineSeparator() + linea + System.lineSeparator() + "  ]" + System.lineSeparator() + "}";
             }
 
-            // Creamos el nuevo cliente
-            matricula = matricula.toUpperCase();
-            Cliente cliente = new Cliente(nuevoId, nombre, telefono, matricula);
+            Files.writeString(archivo, contenido, StandardCharsets.UTF_8);
 
-            // Guardamos en el CSV
-            String linea1 = "{\"Id\": \"" + cliente.getId() + "\"," + "\"nombre\": \"" + cliente.getNombre() + "\"," + "\"telefono\": \"" + cliente.getTelefono() + "\"," + "\"matricula\": \"" + cliente.getMatricula() + "\"},";
-
-            Files.writeString(archivo, linea1 + System.lineSeparator(), StandardCharsets.UTF_8, StandardOpenOption.APPEND);
-
-            // Mostramos el resultado
             System.out.println("Cliente guardado correctamente.");
             System.out.println("El identificador del cliente es: " + nuevoId);
 
         } catch (Exception e) {
-            System.out.println("Error al guardar el cliente." + e.getMessage());
+            System.out.println("Error al guardar el cliente: " + e.getMessage());
         }
     }
 
     @Override
     public void guardarCliente(Cliente c) {
-        this.guardarCliente(c.getNombre(), c.getMatricula(), c.getTelefono());
+        this.guardarCliente(c.getNombre(), c.getTelefono(), c.getMatricula());
 
     }
 
@@ -88,7 +93,7 @@ public class AlmacenamientoClienteJson implements I_AlmacenamientoCliente {
         try (BufferedReader lector = Files.newBufferedReader(archivo, StandardCharsets.UTF_8)) {
             String linea;
             while ((linea = lector.readLine()) != null) {
-                if (!linea.isBlank()) {
+                if (linea.startsWith("{\"Id\"")) {
                     String[] datos = linea.split("\"");
 
                     int id = Integer.parseInt(datos[3].trim());
@@ -127,7 +132,7 @@ public class AlmacenamientoClienteJson implements I_AlmacenamientoCliente {
         try (BufferedReader lector = Files.newBufferedReader(archivo, StandardCharsets.UTF_8)) {
             String linea;
             while ((linea = lector.readLine()) != null) {
-                if (!linea.isBlank()) {
+                if (linea.startsWith("{\"Id\"")) {
                     String[] datos = linea.split("\"");
 
                     int id = Integer.parseInt(datos[3].trim());
@@ -165,7 +170,7 @@ public class AlmacenamientoClienteJson implements I_AlmacenamientoCliente {
         List<Cliente> clientes = obtenerTodos();
 
         for (Cliente cliente : clientes) {
-            if (cliente.getMatricula().equalsIgnoreCase(matricula)) {
+            if (cliente.getMatricula().equalsIgnoreCase(matricula.trim())) {
                 return true;
             }
         }
@@ -179,8 +184,7 @@ public class AlmacenamientoClienteJson implements I_AlmacenamientoCliente {
         try (BufferedReader lector = Files.newBufferedReader(archivo, StandardCharsets.UTF_8)) {
             String linea;
             while ((linea = lector.readLine()) != null) {
-                if (!linea.isBlank()) {
-
+                if (linea.startsWith("{\"Id\"")) {
                     String[] datos = linea.split("\"");
 
                     int id = Integer.parseInt(datos[3].trim());

@@ -23,7 +23,7 @@ public class Gasolinera {
     public void registrarCliente() {
 
         System.out.print("Nombre: ");
-        String nombre = scanner.nextLine();
+        String nombre = scanner.nextLine().trim();
 
         while (!nombre.matches("[a-zA-ZáéíóúÁÉÍÓÚñÑ ]+")) {
             System.out.println("El nombre solo puede contener letras.");
@@ -34,7 +34,7 @@ public class Gasolinera {
         System.out.print("Teléfono: ");
         String telefono = scanner.nextLine();
 
-        while (!telefono.matches("[0-9 ]{9}")) {
+        while (!telefono.matches("[0-9]{9}")) {
             System.out.println("El telefono solo puede contener 9 numeros.");
             System.out.print("Introduce de nuevo el telefono: ");
             telefono = scanner.nextLine().trim();

@@ -30,50 +30,68 @@ public class AlmacenamientoPagoJson implements I_AlmacenamientoPago {
         }
     }
 
-
     @Override
     public void guardarPago(int idCliente, LocalDate fecha, BigDecimal importe, BigDecimal litros, String combustible) {
 
-        //Buscamos el cliente
         Cliente cliente = almacenamientoClienteJson.buscarPorId(idCliente);
 
-        //Obtenemos el ID del pago.
+        if (cliente == null) {
+            System.out.println("El cliente no existe.");
+            return;
+        }
+
+        // Calculamos el siguiente identificador del pago
         int nuevoId = 1;
 
-        try (BufferedReader lector = Files.newBufferedReader(archivo, StandardCharsets.UTF_8)) {
-            String linea;
-            while ((linea = lector.readLine()) != null) {
-                if (!linea.isBlank()) {
-                    String[] datos = linea.split("\"");
-                    int id = Integer.parseInt(datos[3]);
+        for (Pago pago : obtenerTodos()) {
+            if (pago.getId() >= nuevoId) {
+                nuevoId = pago.getId() + 1;
+            }
+        }
 
-                    if (id >= nuevoId) {
-                        nuevoId = id + 1;
-                    }
+        Pago pago = new Pago(nuevoId, cliente, fecha, importe, litros, combustible);
+
+        String linea = "{\"Id\": \"" + pago.getId() + "\"," + "\"Idcliente\": \"" + pago.getCliente().getId() + "\"," + "\"fecha\": \"" + pago.getFecha() + "\"," + "\"importe\": \"" + pago.getImporte() + "\"," + "\"Litros\": \"" + pago.getLitros() + "\"," + "\"Combustible\": \"" + pago.getCombustible() + "\"}";
+
+        try {
+            String contenido = Files.readString(archivo, StandardCharsets.UTF_8).trim();
+
+            if (contenido.isEmpty() || contenido.equals("[]")) {
+                contenido = "{" + System.lineSeparator() + "\"pagos\": [" + System.lineSeparator() + linea + System.lineSeparator() + "  ]" + System.lineSeparator() + "}";
+            } else {
+                int posicion = contenido.lastIndexOf("]");
+
+                if (posicion == -1) {
+                    System.out.println("El archivo JSON no tiene un formato válido.");
+                    return;
                 }
+
+                String pagos = contenido.substring(0, posicion).trim();
+
+                if (!pagos.endsWith("[")) {
+                    pagos += ",";
+                }
+
+                contenido = pagos + System.lineSeparator() + linea + System.lineSeparator() + "  ]" + System.lineSeparator() + "}";
             }
 
-
-            Pago pago = new Pago(nuevoId, cliente, fecha, importe, litros, combustible);
-
-            //Guardamos el pago en el CSV
-            String linea1 = "{\"Id\": \"" + pago.getId() + "\"," + "\"Idcliente\": \"" + pago.getCliente().getId() + "\"," + "\"fecha\": \"" + pago.getFecha() + "\"," + "\"importe\": \"" + pago.getImporte() + "\"," + "\"Litros\": \"" + pago.getLitros() + "\"," + "\"Combustible\": \"" + pago.getCombustible() + "\"},";
-
-            Files.writeString(archivo, linea1 + System.lineSeparator(), StandardCharsets.UTF_8, StandardOpenOption.APPEND);
+            Files.writeString(archivo, contenido, StandardCharsets.UTF_8);
 
             System.out.println();
             System.out.println("Pago registrado correctamente.");
             System.out.println("Identificador del pago: " + pago.getId());
             System.out.println("Cliente: " + cliente.getNombre());
             System.out.println("Importe: " + String.format(Locale.US, "%.2f", pago.getImporte()) + "€");
+
         } catch (Exception e) {
-            System.out.println("Error al obtener el ID del pago." + e.getMessage());
+            System.out.println("Error al guardar el pago: " + e.getMessage());
         }
     }
 
+
     @Override
     public void guardarPago(Pago p) {
-        this.guardarPago(p.getId(), p.getFecha(), p.getImporte(), p.getLitros(), p.getCombustible());
+        this.guardarPago(p.getCliente().getId(), p.getFecha(), p.getImporte(), p.getLitros(), p.getCombustible());
     }
 
 
@@ -83,8 +101,8 @@ public class AlmacenamientoPagoJson implements I_AlmacenamientoPago {
 
         try (BufferedReader lector = Files.newBufferedReader(archivo, StandardCharsets.UTF_8)) {
             String linea;
-            while ((linea = lector.readLine())!=null) {
-                if (!linea.isBlank()) {
+            while ((linea = lector.readLine()) != null) {
+                if (linea.startsWith("{\"Id\"")) {
                     String[] datos = linea.split("\"");
                     int id = Integer.parseInt(datos[3]);
                     int idCliente = Integer.parseInt(datos[7]);

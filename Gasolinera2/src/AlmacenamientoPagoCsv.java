@@ -72,7 +72,7 @@ public class AlmacenamientoPagoCsv implements I_AlmacenamientoPago {
 
     @Override
     public void guardarPago(Pago p) {
-        this.guardarPago(p.getId(), p.getFecha(), p.getImporte(), p.getLitros(), p.getCombustible());
+        this.guardarPago(p.getCliente().getId(), p.getFecha(), p.getImporte(), p.getLitros(), p.getCombustible());
     }
 
 
