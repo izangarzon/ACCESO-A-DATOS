@@ -14,7 +14,6 @@ import java.sql.Statement;
 public final class MetadatosSqlite {
     private MetadatosSqlite() {
     }
-    
     public static void main(String[] args) {
         Path archivo = Path.of("botanico.sqlite");
         if (!Files.isRegularFile(archivo)) {

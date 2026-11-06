@@ -1,28 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="DataSourceManagerImpl" format="xml" multifile-model="true">
-    <data-source source="LOCAL" name="@localhost_botanico" uuid="d257ee67-489b-421a-915b-b5fad0b20ee6">
+    <data-source source="LOCAL" name="botanico@localhost" uuid="013dbb7e-d301-43b3-a502-d86877fc0b52">
       <driver-ref>mysql.8</driver-ref>
       <synchronize>true</synchronize>
       <jdbc-driver>com.mysql.cj.jdbc.Driver</jdbc-driver>
-      <jdbc-url>jdbc:mysql://localhost:3306/ra2_botanico</jdbc-url>
+      <jdbc-url>jdbc:mysql://localhost:3306</jdbc-url>
       <jdbc-additional-properties>
-        <property name="database.introspection.mysql.dbe5060" value="true" />
+        <property name="APPROVED_DRIVER" value="mysql.8" />
       </jdbc-additional-properties>
       <working-dir>$ProjectFileDir$</working-dir>
     </data-source>
-    <data-source source="LOCAL" name="botanico.sqlite" uuid="744851f0-4985-4d96-8c30-30bdef844c70">
+    <data-source source="LOCAL" name="botanico.SQLite" uuid="2e699681-6ea4-4e90-8505-ff8a7ed68dd9">
       <driver-ref>sqlite.xerial</driver-ref>
       <synchronize>true</synchronize>
       <jdbc-driver>org.sqlite.JDBC</jdbc-driver>
-      <jdbc-url>jdbc:sqlite:botanico.sqlite</jdbc-url>
-      <working-dir>$ProjectFileDir$</working-dir>
-    </data-source>
-    <data-source source="LOCAL" name="botanico.sql" uuid="b0065fb4-809e-458d-812a-4efcf6eba54c">
-      <driver-ref>sqlite.xerial</driver-ref>
-      <synchronize>true</synchronize>
-      <jdbc-driver>org.sqlite.JDBC</jdbc-driver>
-      <jdbc-url>jdbc:sqlite:$PROJECT_DIR$/botanico.sqlite</jdbc-url>
+      <jdbc-url>jdbc:sqlite:botanico</jdbc-url>
       <working-dir>$ProjectFileDir$</working-dir>
     </data-source>
   </component>

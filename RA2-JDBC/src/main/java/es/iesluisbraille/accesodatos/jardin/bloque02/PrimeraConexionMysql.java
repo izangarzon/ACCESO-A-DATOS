@@ -10,9 +10,18 @@ public final class PrimeraConexionMysql {
     }
 
     public static void main(String[] args) {
+        // JARDIN_MYSQL_URL= jdbc:mysql://localhost:3306/ra2_botanico;
+        // JARDIN_MYSQL_USER= botanico;
+        // JARDIN_MYSQL_PASSWORD= 1234
         String url = System.getenv("JARDIN_MYSQL_URL");
         String usuario = System.getenv("JARDIN_MYSQL_USER");
         String clave = System.getenv("JARDIN_MYSQL_PASSWORD");
+
+        if (args != null && args.length == 3) {
+            url = args[0];
+            usuario = args[1];
+            clave = args[2];
+        }
 
         if (url == null || url.isBlank() || usuario == null || usuario.isBlank()) {
             System.err.println("Configura JARDIN_MYSQL_URL y JARDIN_MYSQL_USER.");
