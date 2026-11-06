@@ -70,16 +70,16 @@ public final class ExamenRA1B {
                     System.out.println("El directorio de salida ya existe");
                     return true;
                 } else {
-                    System.out.println("Error: La ruta ya existe pero no es un directorio de salida.");
+                    System.out.println("No es un directorio pero si existe la ruta");
                     return false;
                 }
             } else {
                 Files.createDirectories(salida);
-                System.out.println("Directorio creado correctamente.");
+                System.out.println("Directorio creado correctamente");
                 return true;
             }
         } catch (IOException e) {
-            System.out.println("Error al crear el directorio de salida." + e.getMessage());
+            System.out.println("No se puede crear el directorio de salida: " + e.getMessage());
             return false;
         }
     }
@@ -92,34 +92,32 @@ public final class ExamenRA1B {
         // Escribir getNombre() y un salto de línea. Devolver el árbol válido.
         // Si falla la escritura, conservar el árbol leído para el ejercicio 6.
         Arbol arbol = null;
-        try (BufferedReader bf = Files.newBufferedReader(entrada, StandardCharsets.UTF_8);) {
-            String linea = bf.readLine();
+        try (BufferedReader br = Files.newBufferedReader(entrada, StandardCharsets.UTF_8)) {
+            String linea = br.readLine();
+
             if (linea != null) {
                 arbol = ParseadorArboles.parsear(linea);
             }
         } catch (IOException e) {
-            System.out.println(e.getMessage());
+            System.out.println("No se puede leer el directorio de salida: " + e.getMessage());
         } catch (FormatoJsonIncorrectoException e) {
-            System.out.println("Formato incorrecto en el json");
+            System.out.println("Formato incorrecto en el json" + e.getLocalizedMessage());
         } catch (TipoDatoIncorrectoException e) {
-            System.out.println("Tipo de dato incorrecto");
+            System.out.println("Tipo de dato incorrecto" + e.getLocalizedMessage());
         }
-
         if (arbol == null) {
-            System.out.println("Arbol no váido");
+            System.out.println("El arbol no es validoº");
             return null;
         }
 
-        Path FicheroSalida = salida.resolve("arbol1.txt");
-        try (BufferedWriter bf = Files.newBufferedWriter(FicheroSalida, StandardCharsets.UTF_8)) {
-            bf.write(arbol.getNombre());
-            bf.newLine();
-            System.out.println("Fichero arbol1.txt creado correctamente.");
+        Path ficehroSalida = salida.resolve("arbol1.txt");
+        try(BufferedWriter bw = Files.newBufferedWriter(ficehroSalida,StandardCharsets.UTF_8)){
+            bw.write(arbol.getNombre());
+            bw.newLine();
         } catch (IOException e) {
-            System.out.println("Error al escribir el fichero." + e.getMessage());
+            System.out.println("No se puede crear el arbol: " + e.getMessage());
         }
-
-        return null;
+        return arbol;
     }
 
     /**
@@ -128,8 +126,8 @@ public final class ExamenRA1B {
     private static HashMap<Integer, Arbol> ejercicio3LeerArboles(Path entrada) {
         HashMap<Integer, Arbol> arboles = new HashMap<>();
 
-        String linea;
         try (BufferedReader bf = Files.newBufferedReader(entrada, StandardCharsets.UTF_8)) {
+            String linea;
             while ((linea = bf.readLine()) != null) {
                 Arbol arbol = ParseadorArboles.parsear(linea);
                 if (arbol != null) {
@@ -245,10 +243,8 @@ public final class ExamenRA1B {
 
         } catch (FileAlreadyExistsException e) {
             System.out.println("El fichero ya existe. No se modifica.");
-
         } catch (IOException e) {
-            System.out.println("Error al escribir el fichero: "
-                    + e.getMessage());
+            System.out.println("Error al escribir fichero." + e.getMessage());
         }
 
         // PARTE B: incorporar el árbol 1 y actualizar el fichero
@@ -270,8 +266,7 @@ public final class ExamenRA1B {
                 System.out.println("Fichero actualizado correctamente.");
 
             } catch (IOException e) {
-                System.out.println("Error al actualizar el fichero: "
-                        + e.getMessage());
+                System.out.println("Error al escribir fichero." + e.getMessage());
             }
         }
 
