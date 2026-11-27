@@ -1,0 +1,140 @@
+import java.io.BufferedReader;
+import java.math.BigDecimal;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.*;
+import java.time.LocalDate;
+import java.util.*;
+
+
+public class AlmacenamientoPagoJson implements I_AlmacenamientoPago {
+
+    private final Path archivo;
+
+    private final I_AlmacenamientoCliente almacenamientoClienteJson;
+
+    // Constructor
+    public AlmacenamientoPagoJson(String nombreArchivo, I_AlmacenamientoCliente almacenamientoClienteJson) {
+        archivo = Path.of(nombreArchivo);
+        this.almacenamientoClienteJson = almacenamientoClienteJson;
+        crearArchivo();
+    }
+
+    //Crea el archivo
+    private void crearArchivo() {
+        try {
+            if (!Files.exists(archivo)) {
+                Files.createFile(archivo);
+            }
+        } catch (Exception e) {
+            System.out.println("Error al crear el archivo." + e.getMessage());
+        }
+    }
+
+    @Override
+    public void guardarPago(int idCliente, LocalDate fecha, BigDecimal importe, BigDecimal litros, String combustible) {
+
+        Cliente cliente = almacenamientoClienteJson.buscarPorId(idCliente);
+
+        if (cliente == null) {
+            System.out.println("El cliente no existe.");
+            return;
+        }
+
+        // Calculamos el siguiente identificador del pago
+        int nuevoId = 1;
+
+        for (Pago pago : obtenerTodos()) {
+            if (pago.getId() >= nuevoId) {
+                nuevoId = pago.getId() + 1;
+            }
+        }
+
+        Pago pago = new Pago(nuevoId, cliente, fecha, importe, litros, combustible);
+
+        String linea = "{\"Id\": \"" + pago.getId() + "\"," + "\"Idcliente\": \"" + pago.getCliente().getId() + "\"," + "\"fecha\": \"" + pago.getFecha() + "\"," + "\"importe\": \"" + pago.getImporte() + "\"," + "\"Litros\": \"" + pago.getLitros() + "\"," + "\"Combustible\": \"" + pago.getCombustible() + "\"}";
+
+        try {
+            String contenido = Files.readString(archivo, StandardCharsets.UTF_8).trim();
+
+            if (contenido.isEmpty() || contenido.equals("[]")) {
+                contenido = "{" + System.lineSeparator() + "\"pagos\": [" + System.lineSeparator() + linea + System.lineSeparator() + "  ]" + System.lineSeparator() + "}";
+            } else {
+                int posicion = contenido.lastIndexOf("]");
+
+                if (posicion == -1) {
+                    System.out.println("El archivo JSON no tiene un formato válido.");
+                    return;
+                }
+
+                String pagos = contenido.substring(0, posicion).trim();
+
+                if (!pagos.endsWith("[")) {
+                    pagos += ",";
+                }
+
+                contenido = pagos + System.lineSeparator() + linea + System.lineSeparator() + "  ]" + System.lineSeparator() + "}";
+            }
+
+            Files.writeString(archivo, contenido, StandardCharsets.UTF_8);
+
+            System.out.println();
+            System.out.println("Pago registrado correctamente.");
+            System.out.println("Identificador del pago: " + pago.getId());
+            System.out.println("Cliente: " + cliente.getNombre());
+            System.out.println("Importe: " + String.format(Locale.US, "%.2f", pago.getImporte()) + "€");
+
+        } catch (Exception e) {
+            System.out.println("Error al guardar el pago: " + e.getMessage());
+        }
+    }
+
+
+    @Override
+    public void guardarPago(Pago p) {
+        this.guardarPago(p.getCliente().getId(), p.getFecha(), p.getImporte(), p.getLitros(), p.getCombustible());
+    }
+
+
+    @Override
+    public List<Pago> obtenerTodos() {
+        List<Pago> pagos = new ArrayList<>();
+
+        try (BufferedReader lector = Files.newBufferedReader(archivo, StandardCharsets.UTF_8)) {
+            String linea;
+            while ((linea = lector.readLine()) != null) {
+                if (linea.startsWith("{\"Id\"")) {
+                    String[] datos = linea.split("\"");
+                    int id = Integer.parseInt(datos[3]);
+                    int idCliente = Integer.parseInt(datos[7]);
+                    LocalDate fecha = LocalDate.parse(datos[11]);
+                    BigDecimal importe = new BigDecimal(datos[15]);
+                    BigDecimal litros = new BigDecimal(datos[19]);
+                    String combustible = datos[23];
+
+                    Cliente cliente = almacenamientoClienteJson.buscarPorId(idCliente);
+                    if (cliente == null) {
+                        System.out.println("Error: el pago " + id + " hace referencia a un cliente que no existe: " + idCliente);
+                        continue;
+                    }
+
+                    Pago pago = new Pago(id, cliente, fecha, importe, litros, combustible);
+                    pagos.add(pago);
+
+                }
+            }
+
+        } catch (Exception e) {
+            System.out.println("Error al leer los pagos" + e.getMessage());
+        }
+
+        pagos.sort((o1, o2) -> {
+            if (o2.getFecha().isEqual(o1.getFecha())) {
+                return Integer.compare(o2.getId(), o1.getId());
+            }
+            return o2.getFecha().compareTo(o1.getFecha());
+        });
+
+        return pagos;
+    }
+
+}
